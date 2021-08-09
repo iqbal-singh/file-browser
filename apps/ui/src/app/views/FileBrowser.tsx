@@ -12,6 +12,7 @@ import {
 
 import Breadcrumbs from '../components/Breadcrumbs';
 import FilePreview from '../components/FilePreview';
+import Search from '../components/Search';
 
 const Table = styled.table`
   min-width: 300px;
@@ -67,6 +68,8 @@ const FileBrowser: React.FunctionComponent = () => {
   const history = useHistory();
   const location = useLocation();
   const [currentSort, setCurrentSort] = useState<keyof Directory>('type');
+  const [currentOrder, setCurrentOrder] = useState('asc');
+  const [currentSearch, setCurrentSearch] = useState('');
 
   useEffect(() => {
     async function fetchRootDirectory() {
@@ -128,12 +131,11 @@ const FileBrowser: React.FunctionComponent = () => {
     event
   ) => {
     const header = event.target as HTMLElement;
-    const sortKey = header.id as keyof Directory;
+    const sortKey = header.id as keyof Directory | 'fileType';
     history.push(`?sort=${sortKey}`);
-    //setCurrentSort(sortKey);
   };
 
-  const compareFunction = (sortKey: keyof Directory) => {
+  const compareFunction = (sortKey: keyof Directory | 'fileType') => {
     const map = new Map<string, (a: Directory, b: Directory) => number>([
       ['name', (a: Directory, b: Directory) => a.name.localeCompare(b.name)],
       ['sizeKb', (a: Directory, b: Directory) => a.sizeKb - b.sizeKb],
@@ -150,6 +152,7 @@ const FileBrowser: React.FunctionComponent = () => {
   return (
     <>
       <Breadcrumbs url={url} />
+
       <Table>
         <thead onClick={handleHeaderClick}>
           <TableRow>
@@ -159,12 +162,14 @@ const FileBrowser: React.FunctionComponent = () => {
             <TableHeader id="fileType">Type</TableHeader>
           </TableRow>
         </thead>
+
         <tbody>
           {selectedDirectory?.items?.length === 0 && (
             <TableRow>
               <TableCell colSpan={4}>No files to display.</TableCell>
             </TableRow>
           )}
+
           {selectedDirectory?.items
             ?.sort(compareFunction(currentSort))
             ?.map((item, index) => (
