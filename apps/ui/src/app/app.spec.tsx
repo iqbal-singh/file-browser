@@ -1,5 +1,7 @@
-import { cleanup, getByText, render, waitFor } from '@testing-library/react';
 import React from 'react';
+
+import { cleanup, getByText, render, waitFor } from '@testing-library/react';
+
 import App from './app';
 
 describe('App', () => {
