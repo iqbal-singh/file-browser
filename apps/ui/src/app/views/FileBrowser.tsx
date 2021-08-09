@@ -4,11 +4,14 @@ import styled from 'styled-components';
 
 import { Directory } from '@file-browser/api-interfaces';
 import {
-    findSubDirectory, formatKbFileSize, getFileExtension, truncateFileName
+  findSubDirectory,
+  formatKbFileSize,
+  getFileExtension,
+  truncateFileName,
 } from '@file-browser/utils';
 
-import Breadcrumbs from './Breadcrumbs';
-import FilePreview from './FilePreview';
+import Breadcrumbs from '../components/Breadcrumbs';
+import FilePreview from '../components/FilePreview';
 
 const Table = styled.table`
   min-width: 300px;
