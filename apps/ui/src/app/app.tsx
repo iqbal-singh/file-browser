@@ -1,28 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Message } from '@file-browser/api-interfaces';
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
-export const App = () => {
-  const [m, setMessage] = useState<Message>({ message: '' });
+import FileBrowser from './components/FileBrowser';
 
-  useEffect(() => {
-    fetch('/api')
-      .then((r) => r.json())
-      .then(setMessage);
-  }, []);
-
+function App() {
   return (
-    <>
-      <div style={{ textAlign: 'center' }}>
-        <h1>Welcome to ui!</h1>
-        <img
-          width="450"
-          src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png"
-          alt="Nx - Smart, Extensible Build Framework"
-        />
-      </div>
-      <div>{m.message}</div>
-    </>
+    <Router>
+      <Switch>
+        <Route path="*">
+          <FileBrowser />
+        </Route>
+      </Switch>
+    </Router>
   );
-};
+}
 
 export default App;
