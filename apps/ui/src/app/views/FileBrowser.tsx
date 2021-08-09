@@ -66,6 +66,7 @@ const FileBrowser: React.FunctionComponent = () => {
   const { url } = useRouteMatch();
   const history = useHistory();
   const location = useLocation();
+  const [currentSort, setCurrentSort] = useState<keyof Directory>('type');
 
   useEffect(() => {
     async function fetchRootDirectory() {
@@ -101,27 +102,61 @@ const FileBrowser: React.FunctionComponent = () => {
     } else {
       setPreview('');
     }
-  }, [rootDirectory, history, url, selectedDirectory, location.hash]);
+
+    if (location.search) {
+      const sort = location.search.split('=')[1] as keyof Directory;
+      setCurrentSort(sort);
+    }
+  }, [
+    rootDirectory,
+    history,
+    url,
+    selectedDirectory,
+    location.hash,
+    location.search,
+  ]);
 
   const handleRowClick = (item: Directory) => () => {
     if (item.type === 'dir') {
       history.push(`${url}/${item.name}`);
     } else {
-      history.push(`#preview=${item.name}`);
+      history.push(`?sort=${currentSort}#preview=${item.name}`);
     }
+  };
+
+  const handleHeaderClick: React.MouseEventHandler<HTMLTableSectionElement> = (
+    event
+  ) => {
+    const header = event.target as HTMLElement;
+    const sortKey = header.id as keyof Directory;
+    history.push(`?sort=${sortKey}`);
+    //setCurrentSort(sortKey);
+  };
+
+  const compareFunction = (sortKey: keyof Directory) => {
+    const map = new Map<string, (a: Directory, b: Directory) => number>([
+      ['name', (a: Directory, b: Directory) => a.name.localeCompare(b.name)],
+      ['sizeKb', (a: Directory, b: Directory) => a.sizeKb - b.sizeKb],
+      ['type', (a: Directory, b: Directory) => a.type.localeCompare(b.type)],
+      [
+        'fileType',
+        (a: Directory, b: Directory) =>
+          getFileExtension(a.name).localeCompare(getFileExtension(b.name)),
+      ],
+    ]);
+    return map.get(sortKey);
   };
 
   return (
     <>
       <Breadcrumbs url={url} />
       <Table>
-        <thead>
+        <thead onClick={handleHeaderClick}>
           <TableRow>
-            <TableHeader colSpan={2} id="name">
-              Name
-            </TableHeader>
+            <TableHeader id="type"></TableHeader>
+            <TableHeader id="name">Name</TableHeader>
             <TableHeader id="sizeKb">Size</TableHeader>
-            <TableHeader id="type">Type</TableHeader>
+            <TableHeader id="fileType">Type</TableHeader>
           </TableRow>
         </thead>
         <tbody>
@@ -130,19 +165,21 @@ const FileBrowser: React.FunctionComponent = () => {
               <TableCell colSpan={4}>No files to display.</TableCell>
             </TableRow>
           )}
-          {selectedDirectory?.items?.map((item, index) => (
-            <TableRow
-              onClick={handleRowClick(item)}
-              key={`${item.name}-${index}`}
-            >
-              <TableCell width={10}>
-                <FileIcon type={item.type} />
-              </TableCell>
-              <TableCell>{truncateFileName(item.name, 100)}</TableCell>
-              <TableCell>{formatKbFileSize(item.sizeKb)}</TableCell>
-              <TableCell>{getFileExtension(item.name)}</TableCell>
-            </TableRow>
-          ))}
+          {selectedDirectory?.items
+            ?.sort(compareFunction(currentSort))
+            ?.map((item, index) => (
+              <TableRow
+                onClick={handleRowClick(item)}
+                key={`${item.name}-${index}`}
+              >
+                <TableCell width={10}>
+                  <FileIcon type={item.type} />
+                </TableCell>
+                <TableCell>{truncateFileName(item.name, 100)}</TableCell>
+                <TableCell>{formatKbFileSize(item.sizeKb)}</TableCell>
+                <TableCell>{getFileExtension(item.name)}</TableCell>
+              </TableRow>
+            ))}
         </tbody>
       </Table>
       {/* File Preview Modal */}
@@ -150,7 +187,7 @@ const FileBrowser: React.FunctionComponent = () => {
         <FilePreview
           fileName={preview}
           onClose={() => {
-            history.replace('#');
+            history.push(`?sort=${currentSort}#`);
           }}
         />
       )}

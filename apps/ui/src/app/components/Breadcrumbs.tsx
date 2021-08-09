@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-const LinkWrapper = styled.div`
+const LinksWrapper = styled.div`
   font-size: 16px;
+  min-width: 300px;
+  max-width: 1600px;
   width: 80%;
   margin: 16px auto;
 `;
@@ -30,16 +32,16 @@ const Breadcrumbs: React.FunctionComponent<BreadcrumbsProps> = ({ url }) => {
   }, [url]);
 
   return (
-    <LinkWrapper>
+    <LinksWrapper>
       {links?.map(({ title, url }, index) => {
         return (
           <span key={title}>
             <Link to={url}>{title}</Link>
-            {`${index !== links.length - 1 ? ' / ' : ''}`}
+            {`${index < links.length - 1 ? ' / ' : ''}`}
           </span>
         );
       })}
-    </LinkWrapper>
+    </LinksWrapper>
   );
 };
 
