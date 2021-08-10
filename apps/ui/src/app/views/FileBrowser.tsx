@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -8,6 +8,8 @@ import {
   formatKbFileSize,
   getFileExtension,
   truncateFileName,
+  filterFunction,
+  compareFunction,
 } from '@file-browser/utils';
 
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -19,9 +21,8 @@ const Table = styled.table`
   max-width: 1600px;
   width: 80%;
   margin: 16px auto;
-  box-shadow: 0 0px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0px 6px rgba(0, 0, 0, 0.2);
   border-spacing: 0;
-  background-color: rgb(0,0,0,0.1))
 `;
 
 const TableHeader = styled.th`
@@ -60,6 +61,19 @@ const FileIcon = styled.div<{ type: 'dir' | 'file' }>`
   }
 `;
 
+const SortIcon = styled.span<{
+  sortKey: keyof Directory | 'fileType';
+  currentSort: keyof Directory | 'fileType';
+  currentSortOrder: 'asc' | 'desc';
+}>`
+  &::after {
+    content: ${(props) =>
+      props.currentSort === props.sortKey
+        ? `'${props.currentSortOrder === 'asc' ? ' 🔼' : ' 🔽'}'`
+        : ''};
+  }
+`;
+
 const FileBrowser: React.FunctionComponent = () => {
   const [rootDirectory, setRootDirectory] = useState<Directory>();
   const [selectedDirectory, setSelectedDirectory] = useState<Directory>();
@@ -68,7 +82,9 @@ const FileBrowser: React.FunctionComponent = () => {
   const history = useHistory();
   const location = useLocation();
   const [currentSort, setCurrentSort] = useState<keyof Directory>('type');
-  const [currentOrder, setCurrentOrder] = useState('asc');
+  const [currentSortOrder, setCurrentSortOrder] = useState<'asc' | 'desc'>(
+    'asc'
+  );
   const [currentSearch, setCurrentSearch] = useState('');
 
   useEffect(() => {
@@ -84,12 +100,9 @@ const FileBrowser: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (!rootDirectory) return;
-
     const filePath = url.split('/');
     filePath.shift();
-
     const currentDirectory = findSubDirectory(rootDirectory, filePath);
-
     if (currentDirectory) {
       setSelectedDirectory(currentDirectory);
     } else {
@@ -98,103 +111,152 @@ const FileBrowser: React.FunctionComponent = () => {
       }
       setSelectedDirectory(rootDirectory);
     }
+  }, [rootDirectory, history, url, selectedDirectory, location.hash]);
 
+  useEffect(() => {
     if (location.hash) {
       const previewURL = location.hash.split('=')[1];
       setPreview(previewURL);
     } else {
       setPreview('');
     }
+  }, [location.hash]);
 
+  useEffect(() => {
     if (location.search) {
-      const sort = location.search.split('=')[1] as keyof Directory;
+      const urlParams = new URLSearchParams(location.search);
+      const sort = urlParams.get('sort') as keyof Directory;
+      const sortOrder = urlParams.get('order') as 'asc' | 'desc';
+      const search = urlParams.get('search') as string;
       setCurrentSort(sort);
+      setCurrentSortOrder(sortOrder);
+      setCurrentSearch(search);
     }
-  }, [
-    rootDirectory,
-    history,
-    url,
-    selectedDirectory,
-    location.hash,
-    location.search,
-  ]);
-
-  const handleRowClick = (item: Directory) => () => {
-    if (item.type === 'dir') {
-      history.push(`${url}/${item.name}`);
-    } else {
-      history.push(`?sort=${currentSort}#preview=${item.name}`);
-    }
-  };
+  }, [location.search]);
 
   const handleHeaderClick: React.MouseEventHandler<HTMLTableSectionElement> = (
     event
   ) => {
     const header = event.target as HTMLElement;
-    const sortKey = header.id as keyof Directory | 'fileType';
-    history.push(`?sort=${sortKey}`);
+    const sortKey = header?.closest('th')?.id as keyof Directory | 'fileType';
+    if (!sortKey) return;
+    let toggleSortOrder = null;
+    if (sortKey === currentSort) {
+      toggleSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+    }
+
+    history.push({
+      search: `?sort=${sortKey}&order=${
+        toggleSortOrder || currentSortOrder
+      }&search=${currentSearch}`,
+    });
   };
 
-  const compareFunction = (sortKey: keyof Directory | 'fileType') => {
-    const map = new Map<string, (a: Directory, b: Directory) => number>([
-      ['name', (a: Directory, b: Directory) => a.name.localeCompare(b.name)],
-      ['sizeKb', (a: Directory, b: Directory) => a.sizeKb - b.sizeKb],
-      ['type', (a: Directory, b: Directory) => a.type.localeCompare(b.type)],
-      [
-        'fileType',
-        (a: Directory, b: Directory) =>
-          getFileExtension(a.name).localeCompare(getFileExtension(b.name)),
-      ],
-    ]);
-    return map.get(sortKey);
+  const handleRowClick = (item: Directory) => () => {
+    if (item.type === 'dir') {
+      history.push({
+        pathname: `${url}/${item.name}`,
+        search: `?sort=${currentSort}&order=${currentSortOrder}&search=${''}`,
+      });
+    } else {
+      history.push({
+        search: `?sort=${currentSort}&order=${currentSortOrder}&search=${currentSearch}`,
+        hash: `preview=${item.name}`,
+      });
+    }
   };
+
+  const handleSearch: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    const searchTerm = event.target.value.trim();
+    history.push({
+      search: `?sort=${currentSort}&order=${currentSortOrder}&search=${searchTerm}`,
+      hash: '',
+    });
+  };
+
+  const handleClosePreview = () => {
+    history.push({
+      search: `?sort=${currentSort}&order=${currentSortOrder}&search=${currentSearch}`,
+      hash: '',
+    });
+  };
+
+  const items = useMemo(
+    () =>
+      selectedDirectory?.items
+        ?.filter(filterFunction(currentSearch))
+        ?.sort(compareFunction(currentSort, currentSortOrder)),
+    [currentSearch, currentSort, currentSortOrder, selectedDirectory]
+  );
 
   return (
     <>
-      <Breadcrumbs url={url} />
-
+      <Breadcrumbs url={url} seperator=">" />
+      <Search value={currentSearch} onChange={handleSearch} />
       <Table>
         <thead onClick={handleHeaderClick}>
           <TableRow>
-            <TableHeader id="type"></TableHeader>
-            <TableHeader id="name">Name</TableHeader>
-            <TableHeader id="sizeKb">Size</TableHeader>
-            <TableHeader id="fileType">Type</TableHeader>
+            <TableHeader id="type">
+              <SortIcon
+                sortKey="type"
+                currentSort={currentSort}
+                currentSortOrder={currentSortOrder}
+              />
+            </TableHeader>
+            <TableHeader id="name">
+              Name
+              <SortIcon
+                sortKey="name"
+                currentSort={currentSort}
+                currentSortOrder={currentSortOrder}
+              />
+            </TableHeader>
+            <TableHeader id="sizeKb">
+              Size
+              <SortIcon
+                sortKey="sizeKb"
+                currentSort={currentSort}
+                currentSortOrder={currentSortOrder}
+              />
+            </TableHeader>
+            <TableHeader id="fileType">
+              Type
+              <SortIcon
+                sortKey="fileType"
+                currentSort={currentSort}
+                currentSortOrder={currentSortOrder}
+              />
+            </TableHeader>
           </TableRow>
         </thead>
-
         <tbody>
-          {selectedDirectory?.items?.length === 0 && (
+          {items?.length === 0 && (
             <TableRow>
-              <TableCell colSpan={4}>No files to display.</TableCell>
+              <TableCell colSpan={4}>
+                {currentSearch === ''
+                  ? `No files to display.`
+                  : `No files matching '${currentSearch}'.`}
+              </TableCell>
             </TableRow>
           )}
-
-          {selectedDirectory?.items
-            ?.sort(compareFunction(currentSort))
-            ?.map((item, index) => (
-              <TableRow
-                onClick={handleRowClick(item)}
-                key={`${item.name}-${index}`}
-              >
-                <TableCell width={10}>
-                  <FileIcon type={item.type} />
-                </TableCell>
-                <TableCell>{truncateFileName(item.name, 100)}</TableCell>
-                <TableCell>{formatKbFileSize(item.sizeKb)}</TableCell>
-                <TableCell>{getFileExtension(item.name)}</TableCell>
-              </TableRow>
-            ))}
+          {items?.map((item, index) => (
+            <TableRow
+              onClick={handleRowClick(item)}
+              key={`${item.name}-${item.sizeKb}-${index}`}
+            >
+              <TableCell width={10}>
+                <FileIcon type={item.type} />
+              </TableCell>
+              <TableCell>{truncateFileName(item.name, 100)}</TableCell>
+              <TableCell>{formatKbFileSize(item.sizeKb)}</TableCell>
+              <TableCell>{getFileExtension(item.name)}</TableCell>
+            </TableRow>
+          ))}
         </tbody>
       </Table>
       {/* File Preview Modal */}
       {location.hash && (
-        <FilePreview
-          fileName={preview}
-          onClose={() => {
-            history.push(`?sort=${currentSort}#`);
-          }}
-        />
+        <FilePreview fileName={preview} onClose={handleClosePreview} />
       )}
     </>
   );

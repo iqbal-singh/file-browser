@@ -1,19 +1,35 @@
 import React, { useEffect, useState } from 'react';
-
 import styled from 'styled-components';
 
-const Input = styled.input`
-  padding: 10px 0px;
-
-  border: 1px solid #ccc;
-  outline: none;
-  width: 100%;
+const Container = styled.div`
+  min-width: 300px;
+  max-width: 1600px;
+  margin: 12px auto;
+  width: 80%;
+  border-spacing: 0;
 `;
 
-type SearchProps = {};
+const Input = styled.input`
+  width: 99%;
+  max-width: 1200px;
+  padding: 8px 6px;
+  font-family: inherit;
+  outline: none;
+  border: 1px solid #ccc;
+  box-shadow: 0 0px 4px rgba(0, 0, 0, 0.2);
+`;
 
-const Search: React.FunctionComponent<SearchProps> = () => {
-  return <Input placeholder="Search..." />;
+type SearchProps = {
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+};
+
+const Search: React.FunctionComponent<SearchProps> = ({ value, onChange }) => {
+  return (
+    <Container>
+      <Input placeholder="Search..." value={value} onChange={onChange} />
+    </Container>
+  );
 };
 
 export default Search;

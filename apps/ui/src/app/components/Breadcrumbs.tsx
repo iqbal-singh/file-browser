@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -12,6 +12,7 @@ const LinksWrapper = styled.div`
 
 type BreadcrumbsProps = {
   url: string;
+  seperator: string;
 };
 
 const createLinks = (url: string): { title: string; url: string }[] => {
@@ -24,20 +25,19 @@ const createLinks = (url: string): { title: string; url: string }[] => {
   });
 };
 
-const Breadcrumbs: React.FunctionComponent<BreadcrumbsProps> = ({ url }) => {
-  const [links, setLinks] = useState(() => createLinks(url));
-
-  useEffect(() => {
-    setLinks(createLinks(url));
-  }, [url]);
-
+const Breadcrumbs: React.FunctionComponent<BreadcrumbsProps> = ({
+  url,
+  seperator = '/',
+}) => {
+  const links = useMemo(() => createLinks(url), [url]);
   return (
     <LinksWrapper>
+      {`${seperator} `}
       {links?.map(({ title, url }, index) => {
         return (
           <span key={title}>
             <Link to={url}>{title}</Link>
-            {`${index < links.length - 1 ? ' / ' : ''}`}
+            {`${index < links.length - 1 ? ` ${seperator} ` : ''}`}
           </span>
         );
       })}

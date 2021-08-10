@@ -61,3 +61,44 @@ export const getFileExtension = (fileName: string): string => {
   }
   return ext?.pop() ?? '-';
 };
+
+export const compareFunction = (
+  sortKey: keyof Directory | 'fileType',
+  sortOrder: 'asc' | 'desc'
+) => {
+  const order = sortOrder === 'asc' ? 1 : -1;
+  const map = new Map<string, (a: Directory, b: Directory) => number>([
+    [
+      'name',
+      (a: Directory, b: Directory) => order * a.name.localeCompare(b.name),
+    ],
+    [
+      'sizeKb',
+      (a: Directory, b: Directory) =>
+        order === 1 ? a.sizeKb - b.sizeKb : b.sizeKb - a.sizeKb,
+    ],
+    [
+      'type',
+      (a: Directory, b: Directory) => order * a.type.localeCompare(b.type),
+    ],
+    [
+      'fileType',
+      (a: Directory, b: Directory) =>
+        order *
+        getFileExtension(a.name).localeCompare(getFileExtension(b.name)),
+    ],
+  ]);
+  return map.get(sortKey);
+};
+
+export const filterFunction = (searchTerm: string) => {
+  return (item: Directory) => {
+    const searchTermLower = searchTerm?.toLowerCase().trim();
+    if (!searchTermLower) {
+      return true;
+    }
+
+    const name = item?.name?.toLowerCase();
+    return name.includes(searchTermLower);
+  };
+};
