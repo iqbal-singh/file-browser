@@ -1,6 +1,11 @@
 export interface Directory {
   name: string;
   sizeKb: number;
-  type: 'dir' | 'file';
+  type: string;
+  size?: number;
+  path?: string;
+  url?: string;
+  mode?: string;
+  sha?: string;
   items?: Directory[];
 }

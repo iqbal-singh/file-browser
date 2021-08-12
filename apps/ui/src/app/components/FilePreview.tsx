@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
-
-import { Directory } from '@file-browser/api-interfaces';
 
 const FilePreviewModal = styled.div`
   position: absolute;
-  top: 60px;
+  top: 1px;
   left: 0;
   right: 0;
   bottom: 0;
   border: 1px solid #ddd;
   z-index: 1;
   width: 90%;
-  max-width: 700px;
-  max-height: 700px;
-  height: 85%;
+  max-width: 1200px;
+  max-height: 800px;
+  height: 95%;
   margin: 5px auto;
   overflow: hidden;
   background-color: #fff;
@@ -23,9 +20,10 @@ const FilePreviewModal = styled.div`
   box-shadow: 0 0px 8px rgba(0, 0, 0, 0.2);
 `;
 
-const Title = styled.h6`
-  font-size: 16px;
+const Title = styled.h1`
+  font-size: 12px;
   color: #000;
+  margin: 16px;
 `;
 
 const CloseButton = styled.button`
@@ -43,46 +41,61 @@ const CloseButton = styled.button`
   margin: 5px 10px;
 `;
 
-const FileContent = styled.embed`
-  text-align: left;
-  margin: 0px 20px;
+const FileContent = styled.iframe`
+  border: 1px solid #ddd;
   overflow: auto;
-  height: 75%;
-  width: 90%;
-  max-height: 550px;
+  height: 85%;
+  width: 98%;
+  max-height: 600px;
 `;
 
 type FilePreviewProps = {
-  file?: Directory;
-  fileName: string;
+  root: string;
+  filePath: string;
+  fileTitle: string;
   onClose: () => void;
 };
 
-const filePreviewBaseURL = 'http://localhost:3333/api/file/preview?p=';
+const filePreviewBaseURL = '';
 
 const FilePreview: React.FunctionComponent<FilePreviewProps> = ({
-  fileName,
+  filePath,
+  fileTitle,
   onClose,
+  root,
 }) => {
   const [fileContent, setFileContent] = useState('');
-  const { url } = useRouteMatch();
-
+  const [error, setError] = useState(false);
   useEffect(() => {
-    if (!url) return;
+    if (!filePath) return;
 
     async function loadFile() {
-      const response = await fetch(`${filePreviewBaseURL}${url}`);
-      const blob = await response.blob();
-      setFileContent(URL.createObjectURL(blob));
+      setFileContent('');
+      setError(false);
+      try {
+        const [user, repo, branch] = root.split('/');
+        const response = await fetch(
+          `https://raw.githubusercontent.com/${user}/${repo}/${branch}${filePath}`
+        );
+        if (response.status === 200) {
+          const data = await response.blob();
+          console.log(data.type);
+          setFileContent(URL.createObjectURL(data));
+        } else {
+          throw new Error(`Failed to load file: ${filePath}`);
+        }
+      } catch (e) {
+        setError(true);
+      }
     }
+
     loadFile();
-  }, []);
+    window.scrollTo(0, 0);
+  }, [root, filePath]);
 
   return (
     <FilePreviewModal>
-      <Title>
-        {url}/{fileName}
-      </Title>
+      <Title>{error ? 'Error: file not found.' : fileTitle}</Title>
       <CloseButton
         onClick={() => {
           onClose();
@@ -90,9 +103,9 @@ const FilePreview: React.FunctionComponent<FilePreviewProps> = ({
       >
         ✖
       </CloseButton>
-      <br />
-
-      {fileContent.length > 0 && <FileContent src={fileContent} />}
+      {fileContent.length > 0 && (
+        <FileContent frameBorder={0} src={fileContent}></FileContent>
+      )}
     </FilePreviewModal>
   );
 };

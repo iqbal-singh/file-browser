@@ -1,3 +1,5 @@
+import faker = require('faker');
+
 import { Directory } from '@file-browser/api-interfaces';
 import {
   findSubDirectory,
@@ -6,22 +8,113 @@ import {
   truncateFileName,
 } from './utils';
 
+const createFiles = (n: number) => {
+  const files: Directory[] = [];
+  for (let i = 0; i < n; i++) {
+    files.push({
+      name: faker.system.commonFileName(),
+      sizeKb: faker.datatype.number(),
+      type: 'file',
+    });
+  }
+  return files;
+};
+
+const createDirs = (n: number) => {
+  const dirs: Directory[] = [];
+  for (let i = 0; i < n; i++) {
+    dirs.push({
+      name: faker.commerce.color(),
+      sizeKb: 0,
+      type: 'dir',
+      items: createFiles(faker.datatype.number(20)),
+    });
+  }
+  return dirs;
+};
+
 const mockDirectory: Directory = {
-  name: 'test',
-  sizeKb: 120,
+  name: 'home',
+  sizeKb: 0,
   type: 'dir',
   items: [
     {
-      name: 'test.txt',
-      sizeKb: 10,
+      name: 'lib',
+      sizeKb: 0,
+      type: 'dir',
+      items: [
+        ...createFiles(faker.datatype.number(5)),
+        ...createDirs(faker.datatype.number(5)),
+        {
+          name: 'main.go',
+          sizeKb: 320,
+          type: 'file',
+        },
+        {
+          name: 'app',
+          sizeKb: 0,
+          type: 'dir',
+          items: [
+            {
+              name: 'src',
+              sizeKb: 10,
+              type: 'dir',
+              items: [
+                {
+                  name: 'test2.css',
+                  sizeKb: 1033,
+                  type: 'file',
+                },
+                {
+                  name: 'test33.js',
+                  sizeKb: 130,
+                  type: 'file',
+                },
+                {
+                  name: 'test333.html',
+                  sizeKb: 130,
+                  type: 'file',
+                },
+                {
+                  name: 'test4433.js',
+                  sizeKb: 1220,
+                  type: 'file',
+                },
+                {
+                  name: 'f3',
+                  sizeKb: 0,
+                  type: 'dir',
+                  items: [],
+                },
+              ],
+            },
+          ],
+        },
+
+        {
+          name: 'teleport.json',
+          sizeKb: 1011111111,
+          type: 'file',
+        },
+        {
+          name: 'test.go',
+          sizeKb: 3320,
+          type: 'file',
+        },
+      ],
+    },
+    ...createDirs(10),
+    {
+      name: 'README.md',
+      sizeKb: 4340,
       type: 'file',
     },
     {
-      name: 'videos',
-      sizeKb: 0,
-      type: 'dir',
-      items: [],
+      name: 'App.js',
+      sizeKb: 320,
+      type: 'file',
     },
+    ...createFiles(10),
   ],
 };
 

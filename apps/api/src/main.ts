@@ -1,127 +1,45 @@
+import { Directory } from '@file-browser/api-interfaces';
+import { unflattenGitHubTree } from '@file-browser/utils';
+import axios from 'axios';
 import * as express from 'express';
 import cors = require('cors');
-import faker = require('faker');
-import { Directory } from '@file-browser/api-interfaces';
 
 const app = express();
 app.use(cors());
+const cache = new Map<string, Directory>();
 
-const createFiles = (n: number) => {
-  const files: Directory[] = [];
-  for (let i = 0; i < n; i++) {
-    files.push({
-      name: faker.system.commonFileName(),
-      sizeKb: faker.datatype.number(),
-      type: 'file',
-    });
+app.get('/api/files', async (req, res) => {
+  try {
+    let { userRepoBranch } = req.query;
+    userRepoBranch = userRepoBranch.toString();
+
+    if (cache.has(userRepoBranch)) {
+      res.send(cache.get(userRepoBranch));
+    }
+
+    const [user, repo, branch] = userRepoBranch.toString().split('/');
+    const url = `https://api.github.com/repos/${user}/${repo}/git/trees/${branch}?recursive=1`;
+    const fetchRes = await axios.get(url);
+
+    if (fetchRes.status === 200) {
+      const data = fetchRes.data;
+      const tree = unflattenGitHubTree(data.tree);
+      cache.set(userRepoBranch, tree);
+      res.send(tree);
+    }
+  } catch (e) {
+    const { response } = e;
+    if (response.status === 404) {
+      res.status(404).send({
+        name: '',
+        sizeKb: 0,
+        type: 'dir',
+        items: [],
+      } as Directory);
+    }
+
+    res.status(500).send(e.message);
   }
-  return files;
-};
-
-const createDirs = (n: number) => {
-  const dirs: Directory[] = [];
-  for (let i = 0; i < n; i++) {
-    dirs.push({
-      name: faker.lorem.word(10),
-      sizeKb: 0,
-      type: 'dir',
-      items: createFiles(faker.datatype.number(200)),
-    });
-  }
-  return dirs;
-};
-
-const mock: Directory = {
-  name: 'home',
-  sizeKb: 0,
-  type: 'dir',
-  items: [
-    {
-      name: 'lib',
-      sizeKb: 0,
-      type: 'dir',
-      items: [
-        ...createFiles(faker.datatype.number(10)),
-        ...createDirs(faker.datatype.number(5)),
-        {
-          name: 'teleport.go',
-          sizeKb: 320,
-          type: 'file',
-        },
-        {
-          name: 'te',
-          sizeKb: 0,
-          type: 'dir',
-          items: [
-            {
-              name: 'testpoo',
-              sizeKb: 10,
-              type: 'dir',
-              items: [
-                {
-                  name: 'test2.js',
-                  sizeKb: 1033,
-                  type: 'file',
-                },
-                {
-                  name: 'test33.js',
-                  sizeKb: 130,
-                  type: 'file',
-                },
-                {
-                  name: 'test333.js',
-                  sizeKb: 130,
-                  type: 'file',
-                },
-                {
-                  name: 'test4433.js',
-                  sizeKb: 1220,
-                  type: 'file',
-                },
-                {
-                  name: 'f3',
-                  sizeKb: 0,
-                  type: 'dir',
-                  items: [],
-                },
-              ],
-            },
-          ],
-        },
-
-        {
-          name: 'teleport.json',
-          sizeKb: 1011111111,
-          type: 'file',
-        },
-        {
-          name: 'test.go',
-          sizeKb: 3320,
-          type: 'file',
-        },
-      ],
-    },
-    ...createDirs(10),
-    {
-      name: 'README.md',
-      sizeKb: 4340,
-      type: 'file',
-    },
-    {
-      name: '11lenl1el21kenl12enl1ken12len1l2enl12eknl1e.png',
-      sizeKb: 320,
-      type: 'file',
-    },
-    ...createFiles(30),
-  ],
-};
-
-app.get('/api/files', (req, res) => {
-  res.send(mock);
-});
-
-app.get('/api/file/preview', (req, res) => {
-  res.send({ a: 'a' });
 });
 
 const port = process.env.port || 3333;

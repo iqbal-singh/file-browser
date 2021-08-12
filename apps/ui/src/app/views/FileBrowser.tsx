@@ -55,7 +55,7 @@ const TableCell = styled.td`
   }
 `;
 
-const FileIcon = styled.div<{ type: 'dir' | 'file' }>`
+const FileIcon = styled.div<{ type: string }>`
   &::before {
     content: ${(props) => (props.type === 'dir' ? "'📁'" : "'📄'")};
   }
@@ -86,17 +86,25 @@ const FileBrowser: React.FunctionComponent = () => {
     'asc'
   );
   const [currentSearch, setCurrentSearch] = useState('');
+  const [inputVal, setInputVal] = useState('');
 
   useEffect(() => {
+    if (!inputVal) return;
+    if (inputVal.split('/').length !== 3) return;
+
     async function fetchRootDirectory() {
-      const res = await fetch(`http://localhost:3333/api/files`);
+      const res = await fetch(
+        `http://localhost:3333/api/files?userRepoBranch=${inputVal}`
+      );
+
       const json = await res.json();
+
       setRootDirectory(json);
       return json;
     }
 
     fetchRootDirectory();
-  }, []);
+  }, [inputVal]);
 
   useEffect(() => {
     if (!rootDirectory) return;
@@ -125,12 +133,14 @@ const FileBrowser: React.FunctionComponent = () => {
   useEffect(() => {
     if (location.search) {
       const urlParams = new URLSearchParams(location.search);
+      const repo = urlParams.get('repo') as string;
       const sort = urlParams.get('sort') as keyof Directory;
       const sortOrder = urlParams.get('order') as 'asc' | 'desc';
       const search = urlParams.get('search') as string;
       setCurrentSort(sort);
       setCurrentSortOrder(sortOrder);
       setCurrentSearch(search);
+      setInputVal(repo);
     }
   }, [location.search]);
 
@@ -146,7 +156,7 @@ const FileBrowser: React.FunctionComponent = () => {
     }
 
     history.push({
-      search: `?sort=${sortKey}&order=${
+      search: `?repo=${inputVal}&sort=${sortKey}&order=${
         toggleSortOrder || currentSortOrder
       }&search=${currentSearch}`,
     });
@@ -156,12 +166,12 @@ const FileBrowser: React.FunctionComponent = () => {
     if (item.type === 'dir') {
       history.push({
         pathname: `${url}/${item.name}`,
-        search: `?sort=${currentSort}&order=${currentSortOrder}&search=${''}`,
+        search: `?repo=${inputVal}&sort=${currentSort}&order=${currentSortOrder}&search=${''}`,
       });
     } else {
       history.push({
-        search: `?sort=${currentSort}&order=${currentSortOrder}&search=${currentSearch}`,
-        hash: `preview=${item.name}`,
+        search: `?repo=${inputVal}&sort=${currentSort}&order=${currentSortOrder}&search=${currentSearch}`,
+        hash: `preview=${item.path}`,
       });
     }
   };
@@ -169,14 +179,14 @@ const FileBrowser: React.FunctionComponent = () => {
   const handleSearch: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const searchTerm = event.target.value.trim();
     history.push({
-      search: `?sort=${currentSort}&order=${currentSortOrder}&search=${searchTerm}`,
+      search: `?repo=${inputVal}&sort=${currentSort}&order=${currentSortOrder}&search=${searchTerm}`,
       hash: '',
     });
   };
 
   const handleClosePreview = () => {
     history.push({
-      search: `?sort=${currentSort}&order=${currentSortOrder}&search=${currentSearch}`,
+      search: `?repo=${inputVal}&sort=${currentSort}&order=${currentSortOrder}&search=${currentSearch}`,
       hash: '',
     });
   };
@@ -189,10 +199,44 @@ const FileBrowser: React.FunctionComponent = () => {
     [currentSearch, currentSort, currentSortOrder, selectedDirectory]
   );
 
+  const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    const val = inputVal;
+    const [user, repo, branch] = val.split('/');
+    if (user && repo && branch) {
+      history.push({
+        search: `?repo=${val}&sort=${currentSort}&order=${currentSortOrder}&search=${currentSearch}`,
+        hash: '',
+      });
+    }
+  };
+
   return (
     <>
-      <Breadcrumbs url={url} seperator=">" />
-      <Search value={currentSearch} onChange={handleSearch} />
+      <form onSubmit={handleFormSubmit}>
+        <Search
+          value={inputVal}
+          placeHolder="Enter a GitHub [USER]/[REPO]/[BRANCH] like 'facebook/react/main' "
+          required
+          onChange={(e) => {
+            setInputVal(e.target.value);
+          }}
+        />
+
+        <input
+          type="submit"
+          value="go"
+          style={{
+            marginLeft: '4px',
+          }}
+        />
+      </form>
+      <Breadcrumbs root={inputVal} url={url} seperator=">" />
+      <Search
+        placeHolder="Search..."
+        value={currentSearch}
+        onChange={handleSearch}
+      />
       <Table>
         <thead onClick={handleHeaderClick}>
           <TableRow>
@@ -256,7 +300,12 @@ const FileBrowser: React.FunctionComponent = () => {
       </Table>
       {/* File Preview Modal */}
       {location.hash && (
-        <FilePreview fileName={preview} onClose={handleClosePreview} />
+        <FilePreview
+          root={inputVal}
+          filePath={preview ?? ''}
+          fileTitle={preview?.split('/')?.pop() ?? ''}
+          onClose={handleClosePreview}
+        />
       )}
     </>
   );

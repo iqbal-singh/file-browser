@@ -11,6 +11,7 @@ const LinksWrapper = styled.div`
 `;
 
 type BreadcrumbsProps = {
+  root: string;
   url: string;
   seperator: string;
 };
@@ -27,12 +28,13 @@ const createLinks = (url: string): { title: string; url: string }[] => {
 
 const Breadcrumbs: React.FunctionComponent<BreadcrumbsProps> = ({
   url,
+  root,
   seperator = '/',
 }) => {
   const links = useMemo(() => createLinks(url), [url]);
   return (
     <LinksWrapper>
-      {`${seperator} `}
+      <b>{`${root.split('/').join(` ${seperator} `)} ${seperator} `}</b>
       {links?.map(({ title, url }, index) => {
         return (
           <span key={title}>

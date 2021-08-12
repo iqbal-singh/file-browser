@@ -11,7 +11,7 @@ const Container = styled.div`
 
 const Input = styled.input`
   width: 99%;
-  max-width: 1200px;
+  max-width: 1600px;
   padding: 8px 6px;
   font-family: inherit;
   outline: none;
@@ -21,13 +21,25 @@ const Input = styled.input`
 
 type SearchProps = {
   value: string;
+  placeHolder?: string;
+  required?: boolean;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
 };
 
-const Search: React.FunctionComponent<SearchProps> = ({ value, onChange }) => {
+const Search: React.FunctionComponent<SearchProps> = ({
+  placeHolder = '',
+  required = false,
+  value,
+  onChange,
+}) => {
   return (
     <Container>
-      <Input placeholder="Search..." value={value} onChange={onChange} />
+      <Input
+        value={value}
+        onChange={onChange}
+        placeholder={placeHolder}
+        required={required}
+      />
     </Container>
   );
 };
