@@ -1,3 +1,4 @@
+import { splitGithubRepoPath } from '@file-browser/utils';
 import { useQuery } from 'react-query';
 
 import API from '../api';
@@ -31,7 +32,7 @@ export const useGithubFilePreview = ({
 };
 
 export const useGithubRepoTree = ({ repoPath }: { repoPath: string }) => {
-  const [user, repo, branch] = repoPath.split('/');
+  const [user, repo, branch] = splitGithubRepoPath(repoPath);
   const query = useQuery(
     ['githubRepoTree', user, repo, branch],
     () => API.getGithubTree(repoPath),

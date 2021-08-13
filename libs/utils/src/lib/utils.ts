@@ -1,5 +1,18 @@
 import { Directory } from '@file-browser/api-interfaces';
 
+export const isValidGithubRepoPath = (path: string): boolean => {
+  const [user, repo, branch] = path.split('/');
+  if (user && repo && branch) {
+    return true;
+  }
+  return false;
+};
+
+export const splitGithubRepoPath = (path: string): string[] => {
+  const [user, repo, branch] = path.split('/');
+  return [user, repo, branch];
+};
+
 export const findSubDirectory = (directory: Directory, filePath: string[]) => {
   let currentDirectory: Directory | undefined;
   if (filePath.length === 1 && filePath[0] === directory.name) {
@@ -132,7 +145,10 @@ export const unflattenGitHubTree = (nodes: Directory[]): Directory => {
         : {
             path: `${totalPath}/${dir}`,
             name: dir,
-            sizeKb: node.size === 0 || !node.size ? 0 : node.size / 1000,
+            sizeKb:
+              node.size === 0 || !node.size
+                ? 0
+                : Number((node.size / 1024).toFixed(3)),
             type: node.type === 'tree' ? 'dir' : 'file',
             items: node.type === 'tree' ? [] : undefined,
             sha: node.sha,

@@ -1,5 +1,5 @@
 import { Directory } from '@file-browser/api-interfaces';
-import { unflattenGitHubTree } from '@file-browser/utils';
+import { unflattenGitHubTree, splitGithubRepoPath } from '@file-browser/utils';
 import axios from 'axios';
 import * as express from 'express';
 import cors = require('cors');
@@ -9,10 +9,8 @@ app.use(cors());
 
 app.get('/api/files', async (req, res) => {
   try {
-    let { userRepoBranch } = req.query;
-    userRepoBranch = userRepoBranch.toString();
-
-    const [user, repo, branch] = userRepoBranch.toString().split('/');
+    const { userRepoBranch } = req.query;
+    const [user, repo, branch] = splitGithubRepoPath(userRepoBranch.toString());
     const url = `https://api.github.com/repos/${user}/${repo}/git/trees/${branch}?recursive=1`;
     const fetchRes = await axios.get(url);
 

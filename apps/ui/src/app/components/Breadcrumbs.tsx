@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const LinksWrapper = styled.div`
-  font-size: 20px;
+  font-size: 18px;
   min-width: 300px;
   max-width: 1600px;
   width: 80%;

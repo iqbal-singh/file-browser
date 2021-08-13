@@ -1,4 +1,5 @@
-import React from 'react';
+import { splitGithubRepoPath } from '@file-browser/utils';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useGithubFilePreview } from '../hooks/';
@@ -64,8 +65,7 @@ const FilePreview: React.FunctionComponent<FilePreviewProps> = ({
   onClose,
   root,
 }) => {
-  const [user, repo, branch] = root.split('/');
-
+  const [user, repo, branch] = splitGithubRepoPath(root);
   const { objectURL, error, isLoading } = useGithubFilePreview({
     user,
     repo,
