@@ -177,7 +177,7 @@ const FileBrowser: React.FunctionComponent = () => {
       </div>
       {rootDirectory ? (
         <>
-          <Breadcrumbs githubRepo={githubRepo} url={url} seperator=">" />
+          <Breadcrumbs githubRepo={githubRepo} url={url} seperator="/" />
           <InputContainer>
             <Input
               placeholder={`Search ${url}`}

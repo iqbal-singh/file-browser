@@ -56,15 +56,10 @@ export const formatKbFileSize = (sizeKb: number): string => {
 };
 
 export const truncateFileName = (fileName: string, length: number): string => {
-  // eslint-disable-next-line prefer-const
-  let [name, extension] = fileName.split('.');
-  if (name.length > length) {
-    name = name.substring(0, length) + '[...]';
+  if (fileName.length > length) {
+    return fileName.substr(0, length - 3) + '...';
   }
-  if (!extension) {
-    return name;
-  }
-  return `${name}.${extension}`;
+  return fileName;
 };
 
 export const getFileExtension = (fileName: string): string => {
