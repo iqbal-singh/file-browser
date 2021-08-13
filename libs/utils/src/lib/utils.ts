@@ -47,7 +47,7 @@ export const formatKbFileSize = (sizeKb: number): string => {
     return '-';
   }
   if (sizeKb < 1000) {
-    return `${sizeKb} KB`;
+    return `${sizeKb.toFixed(2)} KB`;
   }
   const sizeMb = sizeKb / 1000;
 
@@ -148,7 +148,7 @@ export const unflattenGitHubTree = (nodes: Directory[]): Directory => {
             sizeKb:
               node.size === 0 || !node.size
                 ? 0
-                : Number((node.size / 1024).toFixed(3)),
+                : Number((node.size / 1024).toFixed(2)),
             type: node.type === 'tree' ? 'dir' : 'file',
             items: node.type === 'tree' ? [] : undefined,
             sha: node.sha,

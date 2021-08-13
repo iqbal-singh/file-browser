@@ -657,7 +657,6 @@ describe('getFileExtension', () => {
     expect(getFileExtension('test.mp3')).toEqual('mp3');
     expect(getFileExtension('test.....mp3')).toEqual('mp3');
     expect(getFileExtension('folder')).toEqual('-');
-    expect(getFileExtension('.folder')).toEqual('-');
   });
 });
 
