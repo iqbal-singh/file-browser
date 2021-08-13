@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+
+import { useGithubFilePreview } from '../hooks/';
 
 const FilePreviewModal = styled.div`
   position: absolute;
@@ -9,10 +11,10 @@ const FilePreviewModal = styled.div`
   bottom: 0;
   border: 1px solid #ddd;
   z-index: 1;
-  width: 90%;
-  max-width: 1200px;
-  max-height: 800px;
-  height: 95%;
+  width: 95%;
+  max-width: 1000px;
+  max-height: 1000px;
+  height: 90%;
   margin: 5px auto;
   overflow: hidden;
   background-color: #fff;
@@ -44,9 +46,9 @@ const CloseButton = styled.button`
 const FileContent = styled.iframe`
   border: 1px solid #ddd;
   overflow: auto;
-  height: 85%;
+  height: 90%;
   width: 98%;
-  max-height: 600px;
+  max-height: 90vh;
 `;
 
 type FilePreviewProps = {
@@ -56,42 +58,20 @@ type FilePreviewProps = {
   onClose: () => void;
 };
 
-const filePreviewBaseURL = '';
-
 const FilePreview: React.FunctionComponent<FilePreviewProps> = ({
   filePath,
   fileTitle,
   onClose,
   root,
 }) => {
-  const [fileContent, setFileContent] = useState('');
-  const [error, setError] = useState(false);
-  useEffect(() => {
-    if (!filePath) return;
+  const [user, repo, branch] = root.split('/');
 
-    async function loadFile() {
-      setFileContent('');
-      setError(false);
-      try {
-        const [user, repo, branch] = root.split('/');
-        const response = await fetch(
-          `https://raw.githubusercontent.com/${user}/${repo}/${branch}${filePath}`
-        );
-        if (response.status === 200) {
-          const data = await response.blob();
-          console.log(data.type);
-          setFileContent(URL.createObjectURL(data));
-        } else {
-          throw new Error(`Failed to load file: ${filePath}`);
-        }
-      } catch (e) {
-        setError(true);
-      }
-    }
-
-    loadFile();
-    window.scrollTo(0, 0);
-  }, [root, filePath]);
+  const { objectURL, error, isLoading } = useGithubFilePreview({
+    user,
+    repo,
+    branch,
+    filePath,
+  });
 
   return (
     <FilePreviewModal>
@@ -103,9 +83,8 @@ const FilePreview: React.FunctionComponent<FilePreviewProps> = ({
       >
         ✖
       </CloseButton>
-      {fileContent.length > 0 && (
-        <FileContent frameBorder={0} src={fileContent}></FileContent>
-      )}
+      {isLoading && 'Loading...'}
+      {objectURL && <FileContent frameBorder={0} src={objectURL}></FileContent>}
     </FilePreviewModal>
   );
 };

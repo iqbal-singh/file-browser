@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const LinksWrapper = styled.div`
-  font-size: 16px;
+  font-size: 20px;
   min-width: 300px;
   max-width: 1600px;
   width: 80%;
@@ -11,7 +11,7 @@ const LinksWrapper = styled.div`
 `;
 
 type BreadcrumbsProps = {
-  root: string;
+  githubRepo: string;
   url: string;
   seperator: string;
 };
@@ -27,14 +27,14 @@ const createLinks = (url: string): { title: string; url: string }[] => {
 };
 
 const Breadcrumbs: React.FunctionComponent<BreadcrumbsProps> = ({
+  githubRepo,
   url,
-  root,
   seperator = '/',
 }) => {
   const links = useMemo(() => createLinks(url), [url]);
   return (
     <LinksWrapper>
-      <b>{`${root.split('/').join(` ${seperator} `)} ${seperator} `}</b>
+      <b>{`${githubRepo.split('/').join(` ${seperator} `)} ${seperator} `}</b>
       {links?.map(({ title, url }, index) => {
         return (
           <span key={title}>

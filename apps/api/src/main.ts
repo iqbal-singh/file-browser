@@ -6,16 +6,11 @@ import cors = require('cors');
 
 const app = express();
 app.use(cors());
-const cache = new Map<string, Directory>();
 
 app.get('/api/files', async (req, res) => {
   try {
     let { userRepoBranch } = req.query;
     userRepoBranch = userRepoBranch.toString();
-
-    if (cache.has(userRepoBranch)) {
-      res.send(cache.get(userRepoBranch));
-    }
 
     const [user, repo, branch] = userRepoBranch.toString().split('/');
     const url = `https://api.github.com/repos/${user}/${repo}/git/trees/${branch}?recursive=1`;
@@ -24,13 +19,13 @@ app.get('/api/files', async (req, res) => {
     if (fetchRes.status === 200) {
       const data = fetchRes.data;
       const tree = unflattenGitHubTree(data.tree);
-      cache.set(userRepoBranch, tree);
+
       res.send(tree);
     }
   } catch (e) {
     const { response } = e;
     if (response.status === 404) {
-      res.status(404).send({
+      res.status(200).send({
         name: '',
         sizeKb: 0,
         type: 'dir',
@@ -38,7 +33,9 @@ app.get('/api/files', async (req, res) => {
       } as Directory);
     }
 
-    res.status(500).send(e.message);
+    res
+      .status(response.status)
+      .send({ error: response.statusText || e.message });
   }
 });
 
