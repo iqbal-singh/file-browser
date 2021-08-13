@@ -1,4 +1,6 @@
-# File Browser
+# Github Repo File Browser
+
+<p style="text-align: center;"><img src="https://raw.githubusercontent.com/iqbal-singh/master/screenshots/app.png"></p>
 
 This project was generated using [Nx](https://nx.dev).
 
