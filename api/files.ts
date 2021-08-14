@@ -1,5 +1,3 @@
-
-
 import axios from 'axios';
 
 interface Directory {
@@ -77,7 +75,7 @@ const unflattenGitHubTree = (nodes: Directory[]): Directory => {
   return tree;
 };
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   try {
     const { userRepoBranch } = req.query;
     const [user, repo, branch] = splitGithubRepoPath(userRepoBranch.toString());
@@ -105,4 +103,4 @@ module.exports = (req, res) => {
       .status(response.status)
       .send({ error: response.statusText || e.message });
   }
-});
+};
