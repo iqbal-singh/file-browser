@@ -10,7 +10,7 @@
           "executor": "@nrwl/node:build",
           "outputs": ["{options.outputPath}"],
           "options": {
-            "outputPath": "dist/apps/api",
+            "outputPath": "dist-api",
             "main": "apps/api/src/main.ts",
             "tsConfig": "apps/api/tsconfig.app.json",
             "assets": ["apps/api/src/assets"]
@@ -73,7 +73,7 @@
           "executor": "@nrwl/web:build",
           "outputs": ["{options.outputPath}"],
           "options": {
-            "outputPath": "dist/apps/ui",
+            "outputPath": "dist-ui",
             "index": "apps/ui/src/index.html",
             "main": "apps/ui/src/main.tsx",
             "polyfills": "apps/ui/src/polyfills.ts",
