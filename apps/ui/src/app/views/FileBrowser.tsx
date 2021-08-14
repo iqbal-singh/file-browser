@@ -155,6 +155,7 @@ const FileBrowser: React.FunctionComponent = () => {
       <div style={{ borderBottom: '1px solid #ccc', marginBottom: '4px' }}>
         <InputContainer>
           <Input
+            data-testid="github-repo-input"
             value={githubRepo}
             placeholder="Enter a GitHub [USER]/[REPO]/[BRANCH] like 'facebook/react/main' "
             onChange={handleGithubRepoChange}
@@ -164,7 +165,7 @@ const FileBrowser: React.FunctionComponent = () => {
       </div>
       <div style={{ textAlign: 'center', fontSize: '1.5em' }}>
         {rootDirectoryError && (
-          <div>
+          <div data-testid="error-container">
             <h5>
               {`Error loading repo.`}
               {console.error(`Error fetching github repo: ${githubRepo}`, {
@@ -186,6 +187,7 @@ const FileBrowser: React.FunctionComponent = () => {
           <Breadcrumbs githubRepo={githubRepo} url={url} seperator="/" />
           <InputContainer>
             <Input
+              data-testid="search-input"
               placeholder={`Search ${url}`}
               value={currentSearch}
               onChange={handleSearch}
