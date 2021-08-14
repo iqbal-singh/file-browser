@@ -1,3 +1,6 @@
 {
-  "routes": [{ "src": "/((?!api/.*).*)", "dest": "/", "status": 200 }]
+  "routes": [
+    { "src": "/api/files", "dest": "/api/files", "status": 200 },
+    { "src": "/((?!api/.*).*)", "dest": "/", "status": 200 }
+  ]
 }
