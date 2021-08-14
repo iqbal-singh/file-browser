@@ -1,32 +1,7 @@
 import axios from 'axios';
 
-interface Directory {
-  name: string;
-  sizeKb: number;
-  type: string;
-  size?: number;
-  path?: string;
-  url?: string;
-  mode?: string;
-  sha?: string;
-  items?: Directory[];
-}
-
-const isValidGithubRepoPath = (path: string): boolean => {
-  const [user, repo, branch] = path.split('/');
-  if (user && repo && branch) {
-    return true;
-  }
-  return false;
-};
-
-const splitGithubRepoPath = (path: string): string[] => {
-  const [user, repo, branch] = path.split('/');
-  return [user, repo, branch];
-};
-
-const unflattenGitHubTree = (nodes: Directory[]): Directory => {
-  const tree: Directory = {
+const unflattenGitHubTree = (nodes) => {
+  const tree = {
     name: 'home',
     path: '/home',
     sha: '',
@@ -67,7 +42,7 @@ const unflattenGitHubTree = (nodes: Directory[]): Directory => {
 
       if (!foundChild) traversed.items?.push(currSubtree);
       if (index === dirs.length - 1) currSubtree.sha = node.sha;
-      traversed = currSubtree as Directory;
+      traversed = currSubtree;
       totalPath += `/${dir}`;
     });
   });
@@ -78,7 +53,7 @@ const unflattenGitHubTree = (nodes: Directory[]): Directory => {
 module.exports = async (req, res) => {
   try {
     const { userRepoBranch } = req.query;
-    const [user, repo, branch] = splitGithubRepoPath(userRepoBranch.toString());
+    const [user, repo, branch] = userRepoBranch.toString().split('/');
     const url = `https://api.github.com/repos/${user}/${repo}/git/trees/${branch}?recursive=1`;
     const fetchRes = await axios.get(url);
 
@@ -96,7 +71,7 @@ module.exports = async (req, res) => {
         sizeKb: 0,
         type: 'dir',
         items: [],
-      } as Directory);
+      });
     }
 
     res

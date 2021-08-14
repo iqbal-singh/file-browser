@@ -8,7 +8,6 @@
     "dev": "nx run-many --parallel --target=serve --projects=ui,api",
     "build": "nx build",
     "b-ui": "nx build ui --prod --skip-nx-cache",
-    "b-api": "nx build api --prod --skip-nx-cache",
     "test": "nx test",
     "lint": "nx workspace-lint && nx lint",
     "e2e": "nx e2e",
