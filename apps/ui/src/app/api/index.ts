@@ -3,7 +3,7 @@ import axios from 'axios';
 export default {
   getGithubTree: (repoPath: string) => {
     return axios
-      .get(`http://localhost:3333/api/files?userRepoBranch=${repoPath}`, {
+      .get(`/api/files?userRepoBranch=${repoPath}`, {
         timeout: 600000,
       })
       .then((res) => res.data);
