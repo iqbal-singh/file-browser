@@ -73,6 +73,13 @@ const FilePreview: React.FunctionComponent<FilePreviewProps> = ({
     filePath,
   });
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, [filePath]);
+
   return (
     <FilePreviewModal>
       <Title>{error ? 'Error: file not found.' : fileTitle}</Title>
