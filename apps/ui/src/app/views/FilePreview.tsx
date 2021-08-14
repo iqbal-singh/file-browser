@@ -1,11 +1,12 @@
-import { splitGithubRepoPath } from '@file-browser/utils';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+
+import { splitGithubRepoPath } from '@file-browser/utils';
 
 import { useGithubFilePreview } from '../hooks/';
 
 const FilePreviewModal = styled.div`
-  position: absolute;
+  position: fixed;
   top: 1px;
   left: 0;
   right: 0;
@@ -72,13 +73,6 @@ const FilePreview: React.FunctionComponent<FilePreviewProps> = ({
     branch,
     filePath,
   });
-
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  }, [filePath]);
 
   return (
     <FilePreviewModal>

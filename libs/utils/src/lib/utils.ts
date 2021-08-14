@@ -56,13 +56,25 @@ export const formatKbFileSize = (sizeKb: number): string => {
 };
 
 export const truncateFileName = (fileName: string, length: number): string => {
-  if (fileName.length > length) {
-    return fileName.substr(0, length - 3) + '...';
+  if (fileName === '') {
+    return '';
   }
+  const ext = getFileExtension(fileName);
+  if (ext === '-' && fileName.length >= length) {
+    return fileName.substr(0, length) + '[...]';
+  }
+
+  if (fileName.length >= length) {
+    return fileName.substr(0, length) + '[...].' + ext;
+  }
+
   return fileName;
 };
 
 export const getFileExtension = (fileName: string): string => {
+  if (fileName === '') {
+    return '-';
+  }
   const ext = fileName?.split('.');
   if (ext.length <= 1) {
     return '-';
@@ -109,54 +121,4 @@ export const filterFunction = (searchTerm: string) => {
     const name = item?.name?.toLowerCase();
     return name.includes(searchTermLower);
   };
-};
-
-export const unflattenGitHubTree = (nodes: Directory[]): Directory => {
-  const tree: Directory = {
-    name: 'home',
-    path: '/home',
-    sha: '',
-    url: '',
-    type: 'dir',
-    size: 0,
-    sizeKb: 0,
-    items: [],
-  };
-  nodes.forEach((node) => {
-    const dirs = node.path?.split('/') ?? [];
-    if (dirs.length === 1 && dirs[0] === '') {
-      dirs.slice(1);
-    }
-    let traversed = tree;
-    let totalPath = '';
-
-    dirs.forEach((dir, index) => {
-      const foundChild = traversed.items?.find(
-        (child) => child.path === `${totalPath}/${dir}`
-      );
-
-      const currSubtree = foundChild
-        ? foundChild
-        : {
-            path: `${totalPath}/${dir}`,
-            name: dir,
-            sizeKb:
-              node.size === 0 || !node.size
-                ? 0
-                : Number((node.size / 1024).toFixed(2)),
-            type: node.type === 'tree' ? 'dir' : 'file',
-            items: node.type === 'tree' ? [] : undefined,
-            sha: node.sha,
-            url: node.url,
-            mode: node.mode,
-          };
-
-      if (!foundChild) traversed.items?.push(currSubtree);
-      if (index === dirs.length - 1) currSubtree.sha = node.sha;
-      traversed = currSubtree as Directory;
-      totalPath += `/${dir}`;
-    });
-  });
-
-  return tree;
 };

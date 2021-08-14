@@ -1,3 +1,6 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+
 import { Directory } from '@file-browser/api-interfaces';
 import {
   compareFunction,
@@ -8,8 +11,7 @@ import {
   isValidGithubRepoPath,
   truncateFileName,
 } from '@file-browser/utils';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+
 import Breadcrumbs from '../components/Breadcrumbs';
 import { FileIcon, SortIcon } from '../components/Icon';
 import { Input, InputContainer } from '../components/Input';
@@ -163,15 +165,19 @@ const FileBrowser: React.FunctionComponent = () => {
       <div style={{ textAlign: 'center', fontSize: '1.5em' }}>
         {rootDirectoryError && (
           <div>
-            <h4>Error</h4>
-            <pre>{JSON.stringify(rootDirectoryError, null, 2)}</pre>
+            <h5>
+              {`Error loading repo.`}
+              {console.error(`Error fetching github repo: ${githubRepo}`, {
+                githubRepo,
+                rootDirectoryError,
+              })}
+            </h5>
           </div>
         )}
 
         {isLoadingRootDirectory && (
           <div>
-            <h4>Loading Files...</h4>
-            <pre> </pre>
+            <h5>Loading Files...</h5>
           </div>
         )}
       </div>
