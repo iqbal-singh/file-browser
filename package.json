@@ -7,7 +7,7 @@
     "start": "nx serve",
     "dev": "nx run-many --parallel --target=serve --projects=ui,api",
     "build": "nx build",
-    "build:ui": "nx build --target=ui",
+    "build:ui": "nx build --target=ui --prod",
     "build:api": "nx build --target=api",
     "test": "nx test",
     "lint": "nx workspace-lint && nx lint",
