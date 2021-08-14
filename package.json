@@ -5,7 +5,6 @@
   "scripts": {
     "nx": "nx",
     "start": "nx serve",
-    "dev": "nx run-many --parallel --target=serve --projects=ui,api",
     "build": "nx build",
     "b-ui": "nx build ui --prod --skip-nx-cache",
     "test": "nx test",
