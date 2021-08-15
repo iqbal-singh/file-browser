@@ -2,9 +2,9 @@
 [https://file-browser.vercel.app] (https://file-browser.vercel.app)
 
 <p></p>
-<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png"></p>
-<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app1.png"></p>
-<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app2.png"></p>
+<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png"  width="450"></p>
+<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app1.png" width="100%"></p>
+<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app2.png" width="100%"></p>
 
 <p></p>
 <p></p>
