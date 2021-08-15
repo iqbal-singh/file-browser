@@ -1,5 +1,5 @@
 
-# Github Repo File Browser [Live Demo](https://file-broswer.vercel.app)
+# Github Repo File Browser [Live Demo](https://file-browser.vercel.app)
 
 ![Screenshot](https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png)
 
