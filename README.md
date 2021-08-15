@@ -1,7 +1,13 @@
 # Github Repo File Browser
+[https://file-browser.vercel.app] (https://file-browser.vercel.app)
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png"></p>
+<p></p>
+<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png"></p>
+<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app1.png"></p>
+<p><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app2.png"></p>
 
+<p></p>
+<p></p>
 This project was generated using [Nx](https://nx.dev).
 
 <p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
