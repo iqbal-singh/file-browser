@@ -13,15 +13,19 @@ const LinksWrapper = styled.div`
 type BreadcrumbsProps = {
   githubRepo: string;
   url: string;
+  qs: string;
   seperator: string;
 };
 
-const createLinks = (url: string): { title: string; url: string }[] => {
+const createLinks = (
+  url: string,
+  qs: string
+): { title: string; url: string }[] => {
   const folders = url.substring(1).split('/');
   return folders.map((folder, index) => {
     return {
       title: folder,
-      url: `/${folders.slice(0, index + 1).join('/')}`,
+      url: `/${folders.slice(0, index + 1).join('/')}${qs || ''}`,
     };
   });
 };
@@ -29,9 +33,10 @@ const createLinks = (url: string): { title: string; url: string }[] => {
 const Breadcrumbs: React.FunctionComponent<BreadcrumbsProps> = ({
   githubRepo,
   url,
+  qs,
   seperator = '/',
 }) => {
-  const links = useMemo(() => createLinks(url), [url]);
+  const links = useMemo(() => createLinks(url, qs), [url, qs]);
   return (
     <LinksWrapper>
       <b>{`${githubRepo.split('/').join(` ${seperator} `)} ${seperator} `}</b>
