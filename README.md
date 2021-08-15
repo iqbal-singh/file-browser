@@ -1,8 +1,8 @@
-# https://file-browser.vercel.app
 # Github Repo File Browser 
+# https://file-browser.vercel.app
 
- 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png" width="75%"></p>
+
+<p style="text-align: center;"><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png" width="100%"></p>
 <p style="text-align: center;"><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app2.png" width="100%"></p>
 
 This project was generated using [Nx](https://nx.dev).
