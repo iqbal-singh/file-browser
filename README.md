@@ -1,9 +1,18 @@
-# Github Repo File Browser 
-# https://file-browser.vercel.app
+
+# Github Repo File Browser   
+# [Live Demo](https://file-broswer.vercel.app)
+
+![Screenshot](https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png)
+
+![Screenshot](https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app2.png)
 
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app.png" width="70%"></p>
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/iqbal-singh/file-browser/master/screenshots/app2.png" width="90%"></p>
+## Built With
+ - React
+ - Nx
+ - Styled Components
+ - React-Query
+ - Vercel
 
 This project was generated using [Nx](https://nx.dev).
 
